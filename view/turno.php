@@ -4,4 +4,4 @@ require_once('../control/BaseDadosCTR.class.php');
 
 $baseDadosCTR = new BaseDadosCTR();
 
-echo $baseDadosCTR->dadosItemCheckList();
+echo $baseDadosCTR->dadosTurno();

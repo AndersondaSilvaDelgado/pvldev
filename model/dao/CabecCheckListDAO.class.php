@@ -6,7 +6,6 @@
  * and open the template in the editor.
  */
 require_once('../dbutil/Conn.class.php');
-require_once('../model/dao/AjusteDataHoraDAO.class.php');
 /**
  * Description of CabecChecklist
  *
@@ -16,16 +15,14 @@ class CabecCheckListDAO extends Conn {
 
     public function verifCabecCheckList($cab) {
 
-        $ajusteDataHoraDAO = new AjusteDataHoraDAO();
-
         $select = " SELECT "
                 . " COUNT(*) AS QTDE "
                 . " FROM "
                 . " BOLETIM_CHECK "
                 . " WHERE "
-                . " DTHR_CELULAR  = TO_DATE('" . $cab->dtCabCL . "','DD/MM/YYYY HH24:MI') "
+                . " DTHR_CELULAR  = TO_DATE('" . $cab->dthrCabecCheckList . "','DD/MM/YYYY HH24:MI') "
                 . " AND "
-                . " EQUIP_NRO = " . $cab->equipCabCL;
+                . " EQUIP_NRO = " . $cab->equipCabecCheckList;
 
         $this->Conn = parent::getConn();
         $this->Read = $this->Conn->prepare($select);
@@ -42,16 +39,14 @@ class CabecCheckListDAO extends Conn {
 
     public function idCabecCheckList($cab) {
 
-        $ajusteDataHoraDAO = new AjusteDataHoraDAO();
-
         $select = " SELECT "
                 . " ID_BOLETIM AS ID "
                 . " FROM "
                 . " BOLETIM_CHECK "
                 . " WHERE "
-                . " DTHR_CELULAR  = TO_DATE('" . $cab->dtCabCL . "','DD/MM/YYYY HH24:MI') "
+                . " DTHR_CELULAR  = TO_DATE('" . $cab->dthrCabecCheckList . "','DD/MM/YYYY HH24:MI') "
                 . " AND "
-                . " EQUIP_NRO = " . $cab->equipCabCL;
+                . " EQUIP_NRO = " . $cab->equipCabecCheckList;
 
         $this->Conn = parent::getConn();
         $this->Read = $this->Conn->prepare($select);
@@ -68,13 +63,11 @@ class CabecCheckListDAO extends Conn {
 
     public function insCabecCheckList($cab) {
 
-        $ajusteDataHoraDAO = new AjusteDataHoraDAO();
-
         $select = " SELECT "
                 . " NRO_TURNO "
                 . " FROM "
                 . " USINAS.TURNO_TRAB "
-                . " WHERE TURNOTRAB_ID = " . $cab->turnoCabCL;
+                . " WHERE TURNOTRAB_ID = " . $cab->turnoCabecCheckList;
 
         $this->Conn = parent::getConn();
         $this->Read = $this->Conn->prepare($select);
@@ -94,10 +87,10 @@ class CabecCheckListDAO extends Conn {
                 . " , NRO_TURNO "
                 . " ) "
                 . " VALUES ( "
-                . " " . $cab->equipCabCL . " "
-                . " , " . $cab->funcCabCL . ""
-                . " , " . $ajusteDataHoraDAO->dataHoraGMT($cab->dtCabCL)
-                . " , TO_DATE('" . $cab->dtCabCL . "','DD/MM/YYYY HH24:MI') "
+                . " " . $cab->equipCabecCheckList . " "
+                . " , " . $cab->funcCabecCheckList . ""
+                . " , TO_DATE('" . $cab->dthrCabecCheckList . "','DD/MM/YYYY HH24:MI') "
+                . " , TO_DATE('" . $cab->dthrCabecCheckList . "','DD/MM/YYYY HH24:MI') "
                 . " , " . $turno . ")";
 
         $this->Create = $this->Conn->prepare($sql);

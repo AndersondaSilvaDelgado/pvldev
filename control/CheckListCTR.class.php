@@ -9,107 +9,58 @@ require_once('../model/dao/EquipDAO.class.php');
 require_once('../model/dao/ItemCheckListDAO.class.php');
 require_once('../model/dao/CabecCheckListDAO.class.php');
 require_once('../model/dao/RespCheckListDAO.class.php');
-require_once('../model/dao/LogDAO.class.php');
 /**
  * Description of CheckListCTR
  *
  * @author anderson
  */
 class CheckListCTR {
-    //put your code here
     
-    public function pesq($versao, $info) {
-
-        $versao = str_replace("_", ".", $versao);
-        
-        if($versao >= 2.00){
-        
-            $equipDAO = new EquipDAO();
-            $itemCheckListDAO = new ItemCheckListDAO();
-
-            $nroEquip = $info['dado'];
-
-            $dadosEquip = array("dados" => $equipDAO->dados($nroEquip));
-            $resEquip = json_encode($dadosEquip);
-
-            $dadosItemCheckList = array("dados" => $itemCheckListDAO->dados());
-            $resItemCheckList = json_encode($dadosItemCheckList);
-
-            $itemCheckListDAO->atualCheckList($nroEquip);
-            
-            return $resEquip . "_" . $resItemCheckList;
-        
-        }
-        
-    }
+    private $base = 2;
     
-    public function dadosItem($versao) {
-        
-        $versao = str_replace("_", ".", $versao);
-        
-        if($versao >= 2.00){
-        
-            $itemCheckListDAO = new ItemCheckListDAO();
+    public function salvarDados($info) {
 
-            $dados = array("dados"=>$itemCheckListDAO->dados());
-            $json_str = json_encode($dados);
-
-            return $json_str;
-        
-        }
-        
-    }
-    
-    public function salvarDados($versao, $info, $pagina) {
-
-        $logDAO = new LogDAO();
-        
-        $pagina = $pagina . '-' . $versao;
-        
         $dados = $info['dado'];
-        $logDAO->salvarDados($dados, $pagina);
 
-        $versao = str_replace("_", ".", $versao);
-        
-        if($versao >= 2.00){
-        
-            $posicao = strpos($dados, "_") + 1;
-            $cabec = substr($dados, 0, ($posicao - 1));
-            $item = substr($dados, $posicao);
+        $posicao = strpos($dados, "_") + 1;
+        $cabec = substr($dados, 0, ($posicao - 1));
+        $resp = substr($dados, $posicao);
 
-            $jsonObjCabec = json_decode($cabec);
-            $jsonObjItem = json_decode($item);
+        $jsonObjCabec = json_decode($cabec);
+        $jsonObjResp = json_decode($resp);
 
-            $dadosCab = $jsonObjCabec->cabecalho;
-            $dadosItem = $jsonObjItem->item;
+        $dadosCabec = $jsonObjCabec->cabecalho;
+        $dadosResp = $jsonObjResp->resp;
 
-            $this->salvarBoletim($dadosCab, $dadosItem);
+        return $this->salvarCabec($dadosCabec, $dadosResp);
 
-            return 'GRAVOU-CHECKLIST';
-        
-        }
-        
     }
     
-    private function salvarBoletim($dadosCab, $dadosItem) {
+    private function salvarCabec($dadosCab, $dadosItem) {
         $cabecCheckListDAO = new CabecCheckListDAO();
-        foreach ($dadosCab as $d) {
-            $v = $cabecCheckListDAO->verifCabecCheckList($d);
+        $idCabecArray = array();
+        foreach ($dadosCab as $cabec) {
+            $v = $cabecCheckListDAO->verifCabecCheckList($cabec);
             if ($v == 0) {
-                $cabecCheckListDAO->insCabecCheckList($d);
+                $cabecCheckListDAO->insCabecCheckList($cabec);
             }
-            $idCabec = $cabecCheckListDAO->idCabecCheckList($d);
-            $this->salvarApont($idCabec, $d->idCabCL, $dadosItem);
+            $idCabec = $cabecCheckListDAO->idCabecCheckList($cabec);
+            $this->salvarResp($idCabec, $cabec->idCabecCheckList, $dadosItem);
+            $idCabecArray[] = array("idCabecCheckList" => $cabec->idCabecCheckList);
         }
+        $dadoCabec = array("cabec"=>$idCabecArray);
+        $retCabec = json_encode($dadoCabec);
+        
+        return 'GRAVOU-CHECKLIST_' . $retCabec;
     }
     
-    private function salvarApont($idBolBD, $idBolCel, $dadosItem) {
+    private function salvarResp($idCabecBD, $idCabecCel, $dadosResp) {
         $respCheckListDAO = new RespCheckListDAO();
-        foreach ($dadosItem as $i) {
-            if ($idBolCel == $i->idCabItCL) {
-                $v = $respCheckListDAO->verifRespCheckList($idBolBD, $i);
+        foreach ($dadosResp as $resp) {
+            if ($idCabecCel == $resp->idCabecItCheckList) {
+                $v = $respCheckListDAO->verifRespCheckList($idCabecBD, $resp, $this->base);
                 if ($v == 0) {
-                    $respCheckListDAO->insRespCheckList($idBolBD, $i);
+                    $respCheckListDAO->insRespCheckList($idCabecBD, $resp, $this->base);
                 }
             }
         }

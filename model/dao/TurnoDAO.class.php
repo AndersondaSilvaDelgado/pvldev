@@ -7,14 +7,11 @@
  */
 require_once('../dbutil/Conn.class.php');
 /**
- * Description of MotoristaDAO
+ * Description of TurnoDAO
  *
  * @author anderson
  */
-class FuncionarioDAO extends Conn {
-    //put your code here
-    
-    //put your code here
+class TurnoDAO extends Conn {
     
     /** @var PDOStatement */
     private $Read;
@@ -25,14 +22,13 @@ class FuncionarioDAO extends Conn {
     public function dados() {
 
         $select = " SELECT "
-                    . " NRO_CRACHA AS \"matricFunc\" "
-                    . " , FUNC_NOME AS \"nomeFunc\" "
+                . " TURNOTRAB_ID AS \"idTurno\" "
+                . " , TPTUREQUIP_CD AS \"codTurno\" "
+                . " , NRO_TURNO AS \"nroTurno\" "
+                . " , 'TURNO ' || NRO_TURNO || ': ' || HR_INI || ' - ' || HR_FIM AS \"descTurno\" "
                 . " FROM "
-                    . " USINAS.V_SIMOVA_FUNC "
-                . " ORDER BY "
-                    . " NRO_CRACHA "
-                . " ASC ";
-        
+                . " USINAS.V_SIMOVA_TURNO_EQUIP_NEW ";
+
         $this->Conn = parent::getConn();
         $this->Read = $this->Conn->prepare($select);
         $this->Read->setFetchMode(PDO::FETCH_ASSOC);
@@ -40,7 +36,7 @@ class FuncionarioDAO extends Conn {
         $result = $this->Read->fetchAll();
 
         return $result;
-        
     }
+
     
 }

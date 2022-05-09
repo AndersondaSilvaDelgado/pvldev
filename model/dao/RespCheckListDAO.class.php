@@ -13,7 +13,7 @@ require_once('../dbutil/Conn.class.php');
  */
 class RespCheckListDAO extends Conn {
 
-    public function verifRespCheckList($idCab, $i) {
+    public function verifRespCheckList($idCab, $item) {
 
         $select = " SELECT "
                 . " COUNT(*) AS QTDE "
@@ -22,7 +22,7 @@ class RespCheckListDAO extends Conn {
                 . " WHERE "
                 . " ID_BOLETIM = " . $idCab
                 . " AND "
-                . " ITMANPREV_ID = " . $i->idItBDItCL;
+                . " ITMANPREV_ID = " . $item->idItBDItCheckList;
 
         $this->Conn = parent::getConn();
         $this->Read = $this->Conn->prepare($select);
@@ -30,14 +30,14 @@ class RespCheckListDAO extends Conn {
         $this->Read->execute();
         $result = $this->Read->fetchAll();
 
-        foreach ($result as $item) {
-            $v = $item['QTDE'];
+        foreach ($result as $it) {
+            $v = $it['QTDE'];
         }
 
         return $v;
     }
 
-    public function insRespCheckList($idCab, $i) {
+    public function insRespCheckList($idCab, $item) {
 
         $grupo = '';
         $questao = '';
@@ -50,7 +50,7 @@ class RespCheckListDAO extends Conn {
                 . " V_ITEM_PLANO_CHECK VIPC "
                 . " , V_COMPONENTE_CHECK VCC "
                 . " WHERE "
-                . " VIPC.ITMANPREV_ID = " . $i->idItBDItCL . " "
+                . " VIPC.ITMANPREV_ID = " . $item->idItBDItCheckList . " "
                 . " AND "
                 . " VIPC.COMPONENTE_ID = VCC.COMPONENTE_ID ";
 
@@ -65,8 +65,8 @@ class RespCheckListDAO extends Conn {
             $grupo = $inf['GRUPO'];
         }
 
-        if (!isset($i->opItCL) || empty($i->opItCL)) {
-            $i->opItCL = 0;
+        if (!isset($item->opItCheckList) || empty($item->opItCheckList)) {
+            $item->opItCheckList = 0;
         }
 
         $sql = " INSERT INTO ITEM_BOLETIM_CHECK ( "
@@ -80,10 +80,9 @@ class RespCheckListDAO extends Conn {
                 . " " . $idCab . " "
                 . " , '" . $grupo . "' "
                 . " , '" . $questao . "' "
-                . " , " . $i->opItCL . " "
-                . " , " . $i->idItBDItCL . ")";
+                . " , " . $item->opItCheckList . " "
+                . " , " . $item->idItBDItCheckList . ")";
 
-        $this->Conn = parent::getConn();
         $this->Create = $this->Conn->prepare($sql);
         $this->Create->execute();
     }
